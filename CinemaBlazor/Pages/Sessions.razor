@@ -1,0 +1,49 @@
+﻿@page "/sessions"
+@using CinemaBlazor.DataAccess
+@inject GraphQLService GraphQLService
+
+<h3>Sessions</h3>
+
+@if (sessions == null)
+{
+        <p>Loading...</p>
+}
+else
+{
+        <ul>
+        @foreach (var session in sessions)
+        {
+                    <li>@session.StartTime - @session.Movie.Title</li>
+        }
+        </ul>
+}
+
+@code {
+    private List<Session> sessions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = @"
+        query {
+            getAllSessions {
+                startTime
+                movie {
+                    title
+                }
+            }
+        }";
+
+        sessions = await GraphQLService.ExecuteQueryReturnListAsync<Session>("getAllSessions", query);
+    }
+
+    public class Session
+    {
+        public DateTime StartTime { get; set; }
+        public Movie Movie { get; set; }
+    }
+
+    public class Movie
+    {
+        public string Title { get; set; }
+    }
+}

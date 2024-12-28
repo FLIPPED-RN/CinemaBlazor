@@ -1,0 +1,42 @@
+﻿@page "/movies"
+@using CinemaBlazor.DataAccess
+@inject GraphQLService GraphQLService
+
+<h3>Movies</h3>
+
+@if (movies == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var movie in movies)
+        {
+            <li>@movie.Title - @movie.Duration min</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Movie> movies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = @"
+        query {
+            allMovies {
+                title
+                duration
+            }
+        }";
+
+        movies = await GraphQLService.ExecuteQueryReturnListAsync<Movie>("allMovies", query);
+    }
+
+    public class Movie
+    {
+        public string Title { get; set; }
+        public int Duration { get; set; }
+    }
+}

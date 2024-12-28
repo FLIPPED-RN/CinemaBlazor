@@ -1,0 +1,42 @@
+﻿@page "/tickets"
+@using CinemaBlazor.DataAccess
+@inject GraphQLService GraphQLService
+
+<h3>Tickets</h3>
+
+@if (tickets == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <ul>
+        @foreach (var ticket in tickets)
+        {
+            <li>Seat @ticket.SeatNumber - @(ticket.IsSold ? "Sold" : "Available")</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<Ticket> tickets;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var query = @"
+        query {
+            allTickets {
+                seatNumber
+                isSold
+            }
+        }";
+
+        tickets = await GraphQLService.ExecuteQueryReturnListAsync<Ticket>("allTickets", query);
+    }
+
+    public class Ticket
+    {
+        public int SeatNumber { get; set; }
+        public bool IsSold { get; set; }
+    }
+}
